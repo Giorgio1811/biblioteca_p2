@@ -1,0 +1,226 @@
+.admin-glass-toggle {
+    margin-inline: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.admin-glass-toggle:focus-visible {
+    outline: 2px solid #5b8def;
+    outline-offset: 3px;
+}
+
+html[data-admin-theme="glass"] {
+    --primary: #4778b8;
+    --secondary: #648bbd;
+    --accent: #fff;
+    --primary-fg: #fff;
+    --body-fg: #23344b;
+    --body-bg: #f5f8fccc;
+    --body-quiet-color: #64748b;
+    --body-medium-color: #40546d;
+    --body-loud-color: #172b45;
+    --header-color: #fff;
+    --header-branding-color: #fff;
+    --header-bg: #547ba8bb;
+    --header-link-color: #fff;
+    --breadcrumbs-fg: #f3f7ff;
+    --breadcrumbs-link-fg: #fff;
+    --breadcrumbs-bg: #476789aa;
+    --link-fg: #356ca9;
+    --link-hover-color: #194e86;
+    --link-selected-fg: #315f94;
+    --hairline-color: #cad8e7a8;
+    --border-color: #b8c9dccc;
+    --darkened-bg: #e6eef7a6;
+    --selected-bg: #d9e8f6;
+    --selected-row: #e4effa;
+    --button-bg: #5783b8;
+    --button-hover-bg: #416c9f;
+    --default-button-bg: #4778b8;
+    --default-button-hover-bg: #35679f;
+    --close-button-bg: #75869a;
+    --close-button-hover-bg: #5c6c80;
+    --font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color-scheme: light;
+}
+
+html[data-admin-theme="glass"] body {
+    min-height: 100%;
+    background:
+        radial-gradient(ellipse at 12% 8%, #c8ddf6 0, transparent 34rem),
+        radial-gradient(ellipse at 88% 18%, #e2d9fa 0, transparent 32rem),
+        linear-gradient(145deg, #edf4fc, #f7f5fb 55%, #e8f0fa);
+    background-attachment: fixed;
+}
+
+html[data-admin-theme="glass"] #container,
+html[data-admin-theme="glass"] .main {
+    background: transparent;
+}
+
+html[data-admin-theme="glass"] #header {
+    position: relative;
+    background: #547ba8b8;
+    box-shadow: 0 12px 34px #304e7024;
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+}
+
+html[data-admin-theme="glass"] #branding h1,
+html[data-admin-theme="glass"] #branding h1 a {
+    color: #fff;
+}
+
+html[data-admin-theme="glass"] .breadcrumbs {
+    margin: 0.75rem 1.25rem;
+    border: 1px solid #ffffff70;
+    border-radius: 999px;
+    background: #547ba866;
+    box-shadow: 0 8px 24px #304e7012;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+html[data-admin-theme="glass"] #content {
+    margin: 1rem;
+    padding: 1.5rem;
+    border: 1px solid #ffffffb8;
+    border-radius: 26px;
+    background: #ffffff8c;
+    box-shadow: 0 18px 50px #3552721c, inset 0 1px #ffffffd9;
+    backdrop-filter: blur(24px) saturate(145%);
+    -webkit-backdrop-filter: blur(24px) saturate(145%);
+}
+
+html[data-admin-theme="glass"] #content h1,
+html[data-admin-theme="glass"] #content h2,
+html[data-admin-theme="glass"] #content h3 {
+    color: #203a59;
+    letter-spacing: -0.025em;
+}
+
+html[data-admin-theme="glass"] .module,
+html[data-admin-theme="glass"] #changelist,
+html[data-admin-theme="glass"] #changelist-filter,
+html[data-admin-theme="glass"] .inline-group,
+html[data-admin-theme="glass"] .submit-row {
+    overflow: hidden;
+    border: 1px solid #ffffffad;
+    border-radius: 18px;
+    background: #ffffff80;
+    box-shadow: 0 8px 28px #35527212;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+html[data-admin-theme="glass"] .module h2,
+html[data-admin-theme="glass"] .module caption,
+html[data-admin-theme="glass"] .inline-group h2 {
+    background: #dbe8f4a6;
+    color: #294766;
+}
+
+html[data-admin-theme="glass"] #nav-sidebar {
+    border-right: 1px solid #ffffffa6;
+    background: #e7f0fa94;
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+}
+
+html[data-admin-theme="glass"] #nav-sidebar .current-model,
+html[data-admin-theme="glass"] #nav-sidebar .current-app .section:link {
+    border-radius: 10px;
+    background: #d5e4f4b8;
+}
+
+html[data-admin-theme="glass"] #result_list,
+html[data-admin-theme="glass"] .results table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+html[data-admin-theme="glass"] #result_list thead th,
+html[data-admin-theme="glass"] #result_list tfoot th {
+    background: #dce8f4bd;
+}
+
+html[data-admin-theme="glass"] #result_list tbody tr:nth-child(even),
+html[data-admin-theme="glass"] #result_list tbody tr:nth-child(even) th {
+    background: #e8f0f98c;
+}
+
+html[data-admin-theme="glass"] #result_list tbody tr:hover,
+html[data-admin-theme="glass"] #result_list tbody tr:hover th {
+    background: #d9e9f8c7;
+}
+
+html[data-admin-theme="glass"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+html[data-admin-theme="glass"] select,
+html[data-admin-theme="glass"] textarea {
+    border: 1px solid #b9cbe0;
+    border-radius: 12px;
+    background: #ffffffb8;
+    box-shadow: inset 0 1px 2px #3552720d;
+}
+
+html[data-admin-theme="glass"] input:focus,
+html[data-admin-theme="glass"] select:focus,
+html[data-admin-theme="glass"] textarea:focus {
+    border-color: #5783b8;
+    outline: 3px solid #5783b833;
+}
+
+html[data-admin-theme="glass"] .button,
+html[data-admin-theme="glass"] input[type="submit"],
+html[data-admin-theme="glass"] input[type="button"],
+html[data-admin-theme="glass"] .submit-row input,
+html[data-admin-theme="glass"] a.button {
+    border-radius: 999px;
+    box-shadow: 0 5px 14px #35527220;
+}
+
+html[data-admin-theme="glass"] .messagelist li {
+    border: 1px solid #ffffffa8;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px #35527212;
+}
+
+html[data-admin-theme="glass"] .object-tools a {
+    border-radius: 999px;
+}
+
+@media (max-width: 767px) {
+    html[data-admin-theme="glass"] #content {
+        margin: 0.6rem;
+        padding: 1rem;
+        border-radius: 20px;
+    }
+
+    html[data-admin-theme="glass"] .breadcrumbs {
+        margin: 0.5rem 0.75rem;
+        border-radius: 14px;
+    }
+
+    html[data-admin-theme="glass"] #header {
+        padding: 0.75rem 1rem;
+    }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    html[data-admin-theme="glass"] #header,
+    html[data-admin-theme="glass"] .breadcrumbs,
+    html[data-admin-theme="glass"] #content,
+    html[data-admin-theme="glass"] .module,
+    html[data-admin-theme="glass"] #changelist,
+    html[data-admin-theme="glass"] #changelist-filter,
+    html[data-admin-theme="glass"] .inline-group,
+    html[data-admin-theme="glass"] #nav-sidebar {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+}

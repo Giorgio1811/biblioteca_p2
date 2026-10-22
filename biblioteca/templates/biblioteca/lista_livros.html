@@ -1,0 +1,70 @@
+{% extends 'biblioteca/base.html' %}
+
+{% block titulo %}Livros | Biblioteca IESB{% endblock %}
+
+{% block conteudo %}
+<h1>Acervo de livros</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Autor</th>
+            <th>Disponíveis</th>
+            <th>Emprestar ou reservar para</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for livro in livros %}
+        <tr>
+            <td>{{ livro.titulo }}</td>
+            <td>{{ livro.autor.nome }}</td>
+            <td>{{ livro.copias_disponiveis }} / {{ livro.copias_totais }}</td>
+            <td>
+                {% if membros %}
+                    {% if livro.copias_disponiveis > 0 %}
+                    <form method="post" action="{% url 'emprestar_livro' livro.id %}">
+                        {% csrf_token %}
+                        <select name="membro_id" required aria-label="Membro para empréstimo de {{ livro.titulo }}">
+                            <option value="">Selecione um membro</option>
+                            {% for membro in membros %}
+                            <option value="{{ membro.id }}">{{ membro.nome }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit">Emprestar</button>
+                    </form>
+                    {% else %}
+                    <form method="post" action="{% url 'reservar_livro' livro.id %}">
+                        {% csrf_token %}
+                        <select name="membro_id" required aria-label="Membro para reserva de {{ livro.titulo }}">
+                            <option value="">Selecione um membro</option>
+                            {% for membro in membros %}
+                            <option value="{{ membro.id }}">{{ membro.nome }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit">Entrar na fila</button>
+                    </form>
+                    {% endif %}
+                    {% for reserva in livro.reservas_pendentes %}
+                    <div class="reserva">Fila {{ forloop.counter }}: {{ reserva.membro.nome }}</div>
+                    {% empty %}
+                    {% endfor %}
+                {% else %}
+                    Cadastre membros no Admin para habilitar esta ação.
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Nenhum livro cadastrado. Use o Admin para cadastrar.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Empréstimos por membro</h2>
+<ul>
+    {% for membro in membros %}
+    <li><a href="{% url 'meus_emprestimos' membro.id %}">{{ membro.nome }}</a></li>
+    {% empty %}
+    <li>Nenhum membro cadastrado.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
