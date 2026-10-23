@@ -33,18 +33,23 @@ python manage.py runserver
 
 Acesse `http://127.0.0.1:8000/` e o painel administrativo em `http://127.0.0.1:8000/admin/`. O projeto usa SQLite local por padrão. Consulte `DOCUMENTACAO.txt` para o fluxo detalhado, decisões, desafios opcionais e configuração de e-mail.
 
-## Deploy de demonstração na Vercel
+## Deploy na Vercel com Supabase
 
-O projeto pode ser conectado ao repositório GitHub como uma aplicação Django em Python. A Vercel detecta `manage.py` e usa `config.asgi:application`; `STATIC_ROOT` está configurado para que os arquivos estáticos sejam coletados durante o build.
+O projeto pode ser conectado ao repositório GitHub como uma aplicação Django em Python. A Vercel detecta `manage.py` e usa `config.asgi:application`; `STATIC_ROOT` está configurado para que os arquivos estáticos sejam coletados durante o build. O banco local continua sendo SQLite; em Vercel, a aplicação exige PostgreSQL e usa `DATABASE_URL` do Supabase.
 
-No projeto Vercel, configure as variáveis de ambiente para **Production** e **Preview**:
+1. Crie um projeto no [Supabase](https://supabase.com/dashboard) e defina uma senha forte para o banco.
+2. No painel Supabase, abra **Connect** e copie a URI do **Transaction pooler** (porta `6543`). Não publique nem envie essa URI: ela contém a senha do banco.
+3. No projeto Vercel, abra **Settings → Environment Variables** e adicione `DATABASE_URL` com essa URI para **Production** e **Preview**. Se preferir conexão direta, use a conexão IPv6 direta fornecida pelo Supabase.
+4. Configure também estas variáveis de ambiente na Vercel:
 
 - `DJANGO_SECRET_KEY`: uma chave secreta forte e exclusiva. Gere uma localmente com `python -c "import secrets; print(secrets.token_urlsafe(50))"` e cadastre o resultado diretamente nas configurações da Vercel.
 - `DJANGO_DEBUG`: `false`.
 - `DJANGO_ALLOWED_HOSTS`: `.vercel.app` e, se houver, o domínio personalizado, separados por vírgula.
 - `DJANGO_CSRF_TRUSTED_ORIGINS`: origens HTTPS do projeto e domínio personalizado, separadas por vírgula (por exemplo, `https://*.vercel.app,https://biblioteca.exemplo.com`).
 
-Não é necessário configurar um comando de build personalizado. A Vercel instala as dependências de `requirements.txt` e coleta os arquivos estáticos. Cada nova instância serverless cria e preenche seu próprio SQLite temporário em `/tmp`; alterações não são persistidas e podem não aparecer em outras instâncias ou após uma nova inicialização. Esta configuração serve apenas para demonstração. Para manter cadastros, empréstimos, sessões administrativas ou consistência entre usuários, conecte um PostgreSQL persistente antes de usar em produção.
+As variáveis podem ser configuradas em **Production**, **Preview** e **Development** conforme necessário. Não é necessário configurar um comando de build personalizado. A Vercel instala as dependências de `requirements.txt` e coleta os arquivos estáticos. As migrações não são executadas automaticamente na inicialização da função. Após configurar `DATABASE_URL`, sincronize as variáveis localmente com `vercel env pull .env.local --environment=production`, execute `python manage.py migrate` e crie a conta administrativa com `python manage.py createsuperuser`. Para carregar os dados de demonstração, execute opcionalmente `python manage.py carregar_dados_demo`. Como `.env.local` é ignorado pelo Git, a URI do banco não será versionada.
+
+Após adicionar todas as variáveis na Vercel, faça um novo deploy. A senha da conexão deve ser mantida somente nos painéis do Supabase/Vercel e no arquivo local ignorado `.env.local`; nunca a inclua no Git ou em mensagens.
 
 ## Verificação
 

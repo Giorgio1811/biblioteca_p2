@@ -1,12 +1,14 @@
 import os
 from pathlib import Path
 
+import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 ON_VERCEL = os.environ.get("VERCEL") == "1"
+DATABASE_URL = os.environ.get("DATABASE_URL")
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
     if ON_VERCEL:
@@ -76,15 +78,24 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": (
-            Path(os.environ.get("VERCEL_TMP_DIR", "/tmp")) / "biblioteca.sqlite3"
-            if ON_VERCEL
-            else BASE_DIR / "db.sqlite3"
-        ),
-    }
+    "default": (
+        {
+            **dj_database_url.parse(
+                DATABASE_URL,
+                conn_max_age=0,
+                ssl_require=True,
+            ),
+            "DISABLE_SERVER_SIDE_CURSORS": True,
+        }
+        if DATABASE_URL
+        else {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    )
 }
+if ON_VERCEL and not DATABASE_URL:
+    raise ImproperlyConfigured("Configure DATABASE_URL do Supabase nas variáveis da Vercel.")
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
