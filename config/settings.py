@@ -1,16 +1,39 @@
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-biblioteca-local-development-only")
-DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
+ON_VERCEL = os.environ.get("VERCEL") == "1"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    if ON_VERCEL:
+        raise ImproperlyConfigured("Configure DJANGO_SECRET_KEY nas variáveis da Vercel.")
+    SECRET_KEY = "django-insecure-biblioteca-local-development-only"
+
+DEBUG = os.environ.get("DJANGO_DEBUG", "false" if ON_VERCEL else "true").lower() == "true"
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+    for host in os.environ.get(
+        "DJANGO_ALLOWED_HOSTS",
+        "127.0.0.1,localhost,.vercel.app" if ON_VERCEL else "127.0.0.1,localhost",
+    ).split(",")
     if host.strip()
 ]
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        "DJANGO_CSRF_TRUSTED_ORIGINS",
+        "https://*.vercel.app" if ON_VERCEL else "",
+    ).split(",")
+    if origin.strip()
+]
+if ON_VERCEL:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -55,7 +78,11 @@ ASGI_APPLICATION = "config.asgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": (
+            Path(os.environ.get("VERCEL_TMP_DIR", "/tmp")) / "biblioteca.sqlite3"
+            if ON_VERCEL
+            else BASE_DIR / "db.sqlite3"
+        ),
     }
 }
 
@@ -71,7 +98,8 @@ TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MULTA_DIARIA = "2.00"
