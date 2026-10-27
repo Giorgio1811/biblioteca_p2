@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from django.core import mail
 from django.core.management import call_command
+from django.db import IntegrityError
 from django.db.models import Count
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -13,7 +14,9 @@ from .models import Autor, Emprestimo, Livro, Membro, Reserva
 
 class RegrasDeNegocioTest(TestCase):
     def setUp(self):
-        self.autor = Autor.objects.create(nome="Machado de Assis", nacionalidade="Brasileira")
+        self.autor = Autor.objects.create(
+            nome="Machado de Assis", nacionalidade="Brasileira"
+        )
         self.livro = Livro.objects.create(
             titulo="Dom Casmurro",
             autor=self.autor,
@@ -62,8 +65,24 @@ class RegrasDeNegocioTest(TestCase):
         self.sem_copia.refresh_from_db()
         self.assertEqual(self.sem_copia.copias_disponiveis, 0)
 
+    def test_livro_rejeita_estoque_invalido(self):
+        with self.assertRaises(IntegrityError):
+            Livro.objects.create(
+                titulo="Livro sem estoque",
+                autor=self.autor,
+                isbn="333",
+                copias_totais=0,
+                copias_disponiveis=0,
+            )
+
+    def test_emprestimo_rejeita_status_devolvido_sem_data(self):
+        with self.assertRaises(IntegrityError):
+            self.criar_emprestimo(status="DEVOLVIDO")
+
     def test_get_nao_empresta(self):
-        resposta = self.client.get(reverse("emprestar_livro", args=[self.livro.pk]))
+        resposta = self.client.get(
+            reverse("emprestar_livro", args=[self.livro.pk])
+        )
         self.assertEqual(resposta.status_code, 405)
 
     def test_devolver_repoe_estoque_e_nao_duplica(self):
@@ -83,7 +102,9 @@ class RegrasDeNegocioTest(TestCase):
 
     def test_esta_atrasado_considera_status_e_prazo(self):
         hoje = timezone.localdate()
-        atrasado = self.criar_emprestimo(data_prevista_devolucao=hoje - timedelta(days=1))
+        atrasado = self.criar_emprestimo(
+            data_prevista_devolucao=hoje - timedelta(days=1)
+        )
         no_prazo = self.criar_emprestimo(
             data_prevista_devolucao=hoje + timedelta(days=3),
         )
@@ -97,8 +118,12 @@ class RegrasDeNegocioTest(TestCase):
         self.assertFalse(devolvido.esta_atrasado)
 
     def test_meus_emprestimos_mostra_badge_de_atraso(self):
-        self.criar_emprestimo(data_prevista_devolucao=timezone.localdate() - timedelta(days=2))
-        resposta = self.client.get(reverse("meus_emprestimos", args=[self.membro.pk]))
+        self.criar_emprestimo(
+            data_prevista_devolucao=timezone.localdate() - timedelta(days=2)
+        )
+        resposta = self.client.get(
+            reverse("meus_emprestimos", args=[self.membro.pk])
+        )
         self.assertContains(resposta, "Atrasado")
 
     def test_related_name_ranking_e_telas(self):
@@ -106,11 +131,19 @@ class RegrasDeNegocioTest(TestCase):
         for _ in range(3):
             self.criar_emprestimo()
         self.criar_emprestimo(livro=self.sem_copia)
-        ranking = list(Livro.objects.annotate(total=Count("emprestimo")).order_by("-total"))
+        ranking = list(
+            Livro.objects.annotate(
+                total=Count("emprestimo")
+            ).order_by("-total")
+        )
         self.assertEqual(ranking[0].titulo, "Dom Casmurro")
         self.assertEqual(ranking[0].total, 3)
-        self.assertEqual(self.client.get(reverse("relatorio_livros")).status_code, 200)
-        self.assertEqual(self.client.get(reverse("lista_livros")).status_code, 200)
+        self.assertEqual(
+            self.client.get(reverse("relatorio_livros")).status_code, 200
+        )
+        self.assertEqual(
+            self.client.get(reverse("lista_livros")).status_code, 200
+        )
 
     def test_admin_registrado(self):
         from django.contrib import admin
@@ -179,22 +212,37 @@ class RegrasDeNegocioTest(TestCase):
             reverse("emprestar_livro", args=[self.sem_copia.pk]),
             {"membro_id": segundo_membro.pk},
         )
-        self.assertEqual(Emprestimo.objects.filter(livro=self.sem_copia).count(), 0)
+        self.assertEqual(
+            Emprestimo.objects.filter(livro=self.sem_copia).count(), 0
+        )
         self.client.post(
             reverse("emprestar_livro", args=[self.sem_copia.pk]),
             {"membro_id": self.membro.pk},
         )
-        self.assertEqual(Emprestimo.objects.filter(livro=self.sem_copia).count(), 1)
         self.assertEqual(
-            Reserva.objects.get(livro=self.sem_copia, membro=self.membro).status,
+            Emprestimo.objects.filter(livro=self.sem_copia).count(), 1
+        )
+        self.assertEqual(
+            Reserva.objects.get(
+                livro=self.sem_copia, membro=self.membro
+            ).status,
             "ATENDIDA",
         )
         self.assertEqual(
-            Reserva.objects.get(livro=self.sem_copia, membro=segundo_membro).status,
+            Reserva.objects.get(
+                livro=self.sem_copia, membro=segundo_membro
+            ).status,
             "AGUARDANDO",
         )
 
-    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_tela_entrega_copia_para_proxima_reserva(self):
+        Reserva.objects.create(livro=self.livro, membro=self.membro)
+        resposta = self.client.get(reverse("lista_livros"))
+        self.assertContains(resposta, "Próxima reserva: Ana")
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend"
+    )
     def test_lembrete_email_enviado_uma_unica_vez(self):
         self.criar_emprestimo(
             data_prevista_devolucao=timezone.localdate() + timedelta(days=2),

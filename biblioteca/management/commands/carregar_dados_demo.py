@@ -22,7 +22,11 @@ class Command(BaseCommand):
 
         livros_dados = [
             ("Dom Casmurro", "Machado de Assis", "9780000000001"),
-            ("Memórias Póstumas de Brás Cubas", "Machado de Assis", "9780000000002"),
+            (
+                "Memórias Póstumas de Brás Cubas",
+                "Machado de Assis",
+                "9780000000002",
+            ),
             ("A Hora da Estrela", "Clarice Lispector", "9780000000003"),
             ("Laços de Família", "Clarice Lispector", "9780000000004"),
             ("O Guarani", "José de Alencar", "9780000000005"),
@@ -48,6 +52,7 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                "Dados de demonstração verificados: 3 autores, 5 livros e 3 membros."
+                "Dados de demonstração verificados: 3 autores, 5 livros "
+                "e 3 membros."
             )
         )

@@ -22,8 +22,8 @@ Projeto de Construção de Backend (IESB) feito com Django. Gerencia autores, li
 ## Como executar no Windows (PowerShell)
 
 ```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 python manage.py migrate
 python manage.py carregar_dados_demo
@@ -32,6 +32,8 @@ python manage.py runserver
 ```
 
 Acesse `http://127.0.0.1:8000/` e o painel administrativo em `http://127.0.0.1:8000/admin/`. O projeto usa SQLite local por padrão. Consulte `DOCUMENTACAO.txt` para o fluxo detalhado, decisões, desafios opcionais e configuração de e-mail.
+
+Para validar a instalação local antes de iniciar o servidor, execute `python manage.py check` e `python manage.py test`.
 
 ## Deploy na Vercel com Supabase
 

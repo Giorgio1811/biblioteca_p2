@@ -48,4 +48,6 @@ class Command(BaseCommand):
             emprestimo.save(update_fields=("lembrete_enviado_em",))
             enviados += 1
 
-        self.stdout.write(self.style.SUCCESS(f"Lembretes enviados: {enviados}."))
+        self.stdout.write(
+            self.style.SUCCESS(f"Lembretes enviados: {enviados}.")
+        )

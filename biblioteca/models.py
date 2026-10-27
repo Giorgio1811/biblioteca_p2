@@ -17,7 +17,9 @@ class Autor(models.Model):
 
 class Livro(models.Model):
     titulo = models.CharField(max_length=200)
-    autor = models.ForeignKey(Autor, on_delete=models.CASCADE, related_name="livros")
+    autor = models.ForeignKey(
+        Autor, on_delete=models.CASCADE, related_name="livros"
+    )
     isbn = models.CharField(max_length=20, unique=True)
     copias_totais = models.PositiveIntegerField()
     copias_disponiveis = models.PositiveIntegerField()
@@ -27,6 +29,11 @@ class Livro(models.Model):
             models.CheckConstraint(
                 condition=Q(copias_disponiveis__lte=F("copias_totais")),
                 name="livro_disponiveis_ate_total",
+            ),
+            models.CheckConstraint(
+                condition=Q(copias_totais__gt=0)
+                & Q(copias_disponiveis__gte=0),
+                name="livro_estoque_valido",
             ),
         ]
 
@@ -55,8 +62,24 @@ class Emprestimo(models.Model):
     data_emprestimo = models.DateField(auto_now_add=True)
     data_prevista_devolucao = models.DateField()
     data_devolucao = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="ATIVO")
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default="ATIVO"
+    )
     lembrete_enviado_em = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    Q(status="DEVOLVIDO", data_devolucao__isnull=False)
+                    | Q(
+                        status__in=("ATIVO", "ATRASADO"),
+                        data_devolucao__isnull=True,
+                    )
+                ),
+                name="emprestimo_status_compativel_data",
+            ),
+        ]
 
     @property
     def esta_atrasado(self):
@@ -86,10 +109,16 @@ class Reserva(models.Model):
         ("CANCELADA", "Cancelada"),
     ]
 
-    livro = models.ForeignKey(Livro, on_delete=models.CASCADE, related_name="reservas")
-    membro = models.ForeignKey(Membro, on_delete=models.CASCADE, related_name="reservas")
+    livro = models.ForeignKey(
+        Livro, on_delete=models.CASCADE, related_name="reservas"
+    )
+    membro = models.ForeignKey(
+        Membro, on_delete=models.CASCADE, related_name="reservas"
+    )
     data_reserva = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="AGUARDANDO")
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default="AGUARDANDO"
+    )
 
     class Meta:
         ordering = ("data_reserva", "pk")

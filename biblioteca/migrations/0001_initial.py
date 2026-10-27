@@ -15,7 +15,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Autor',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
                 ('nome', models.CharField(max_length=150)),
                 ('nacionalidade', models.CharField(max_length=80)),
                 ('data_nascimento', models.DateField(blank=True, null=True)),
@@ -24,7 +32,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Membro',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
                 ('nome', models.CharField(max_length=150)),
                 ('email', models.EmailField(max_length=254, unique=True)),
                 ('data_cadastro', models.DateField(auto_now_add=True)),
@@ -33,35 +49,117 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Livro',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
                 ('titulo', models.CharField(max_length=200)),
                 ('isbn', models.CharField(max_length=20, unique=True)),
                 ('copias_totais', models.PositiveIntegerField()),
                 ('copias_disponiveis', models.PositiveIntegerField()),
-                ('autor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='livros', to='biblioteca.autor')),
+                (
+                    'autor',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='livros',
+                        to='biblioteca.autor',
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name='Emprestimo',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
                 ('data_emprestimo', models.DateField(auto_now_add=True)),
                 ('data_prevista_devolucao', models.DateField()),
                 ('data_devolucao', models.DateField(blank=True, null=True)),
-                ('status', models.CharField(choices=[('ATIVO', 'Ativo'), ('DEVOLVIDO', 'Devolvido'), ('ATRASADO', 'Atrasado')], default='ATIVO', max_length=10)),
-                ('lembrete_enviado_em', models.DateTimeField(blank=True, null=True)),
-                ('livro', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='biblioteca.livro')),
-                ('membro', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='biblioteca.membro')),
+                (
+                    'status',
+                    models.CharField(
+                        choices=[
+                            ('ATIVO', 'Ativo'),
+                            ('DEVOLVIDO', 'Devolvido'),
+                            ('ATRASADO', 'Atrasado'),
+                        ],
+                        default='ATIVO',
+                        max_length=10,
+                    ),
+                ),
+                (
+                    'lembrete_enviado_em',
+                    models.DateTimeField(blank=True, null=True),
+                ),
+                (
+                    'livro',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='biblioteca.livro',
+                    ),
+                ),
+                (
+                    'membro',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='biblioteca.membro',
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name='Reserva',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
                 ('data_reserva', models.DateTimeField(auto_now_add=True)),
-                ('status', models.CharField(choices=[('AGUARDANDO', 'Aguardando'), ('ATENDIDA', 'Atendida'), ('CANCELADA', 'Cancelada')], default='AGUARDANDO', max_length=10)),
-                ('livro', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reservas', to='biblioteca.livro')),
-                ('membro', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reservas', to='biblioteca.membro')),
+                (
+                    'status',
+                    models.CharField(
+                        choices=[
+                            ('AGUARDANDO', 'Aguardando'),
+                            ('ATENDIDA', 'Atendida'),
+                            ('CANCELADA', 'Cancelada'),
+                        ],
+                        default='AGUARDANDO',
+                        max_length=10,
+                    ),
+                ),
+                (
+                    'livro',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='reservas',
+                        to='biblioteca.livro',
+                    ),
+                ),
+                (
+                    'membro',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='reservas',
+                        to='biblioteca.membro',
+                    ),
+                ),
             ],
             options={
                 'ordering': ('data_reserva', 'pk'),
@@ -69,10 +167,19 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='livro',
-            constraint=models.CheckConstraint(condition=models.Q(('copias_disponiveis__lte', models.F('copias_totais'))), name='livro_disponiveis_ate_total'),
+            constraint=models.CheckConstraint(
+                condition=models.Q(
+                    ('copias_disponiveis__lte', models.F('copias_totais'))
+                ),
+                name='livro_disponiveis_ate_total',
+            ),
         ),
         migrations.AddConstraint(
             model_name='reserva',
-            constraint=models.UniqueConstraint(condition=models.Q(('status', 'AGUARDANDO')), fields=('livro', 'membro'), name='reserva_pendente_unica_por_membro'),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(('status', 'AGUARDANDO')),
+                fields=('livro', 'membro'),
+                name='reserva_pendente_unica_por_membro',
+            ),
         ),
     ]

@@ -21,15 +21,21 @@
             <td>{{ livro.copias_disponiveis }} / {{ livro.copias_totais }}</td>
             <td>
                 {% if membros %}
+                    {% with proxima_reserva=livro.reservas_pendentes|first %}
                     {% if livro.copias_disponiveis > 0 %}
                     <form method="post" action="{% url 'emprestar_livro' livro.id %}">
                         {% csrf_token %}
+                        {% if proxima_reserva %}
+                        <input type="hidden" name="membro_id" value="{{ proxima_reserva.membro_id }}">
+                        <span>Próxima reserva: {{ proxima_reserva.membro.nome }}</span>
+                        {% else %}
                         <select name="membro_id" required aria-label="Membro para empréstimo de {{ livro.titulo }}">
                             <option value="">Selecione um membro</option>
                             {% for membro in membros %}
                             <option value="{{ membro.id }}">{{ membro.nome }}</option>
                             {% endfor %}
                         </select>
+                        {% endif %}
                         <button type="submit">Emprestar</button>
                     </form>
                     {% else %}
@@ -48,6 +54,7 @@
                     <div class="reserva">Fila {{ forloop.counter }}: {{ reserva.membro.nome }}</div>
                     {% empty %}
                     {% endfor %}
+                    {% endwith %}
                 {% else %}
                     Cadastre membros no Admin para habilitar esta ação.
                 {% endif %}
